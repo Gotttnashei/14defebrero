@@ -1,0 +1,706 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Para vos</title>
+  <meta name="theme-color" content="#0b0b0f" />
+  <link rel="stylesheet" href="romantic.css">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&display=swap" rel="stylesheet">
+
+
+  <style>
+    :root{
+      --bg:#0b0b0f;
+      --paper:#f4f1ea;
+      --ink:#1b1b1f;
+      --muted:#6a6a74;
+      --accent:#d6b36a;
+      --shadow: 0 24px 80px rgba(0,0,0,.55);
+      --radius: 18px;
+    }
+
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      font-family: ui-serif, Georgia, "Times New Roman", serif;
+      background: radial-gradient(1000px 800px at 50% 20%, rgba(214,179,106,.10), transparent 50%),
+                  radial-gradient(900px 700px at 20% 70%, rgba(255,255,255,.06), transparent 50%),
+                  var(--bg);
+      color: #f2f2f6;
+      overflow-x:hidden;
+    }
+
+    /* ========== LOCK SCREEN ========== */
+    .overlay{
+      position:fixed;
+      inset:0;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:20px;
+      z-index:50;
+      background: rgba(0,0,0,.55);
+      backdrop-filter: blur(10px);
+    }
+
+    .lockCard{
+      width:min(520px, 100%);
+      border-radius: 22px;
+      background: rgba(15,15,20,.78);
+      border: 1px solid rgba(255,255,255,.12);
+      box-shadow: var(--shadow);
+      padding: 26px 22px;
+      text-align:center;
+      position:relative;
+    }
+
+    .lockTitle{
+      font-size: 20px;
+      letter-spacing:.2px;
+      margin: 6px 0 8px;
+    }
+    .lockSub{
+      color: rgba(242,242,246,.75);
+      font-size: 14px;
+      line-height: 1.4;
+      margin: 0 0 18px;
+    }
+
+    .lockAnimWrap{
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      margin: 8px 0 18px;
+      min-height: 140px;
+    }
+
+    /* SVG lock default */
+    .lockSvg{
+      width: 120px;
+      height: 120px;
+      filter: drop-shadow(0 18px 28px rgba(0,0,0,.55));
+    }
+    .shackle{
+      transform-origin: 60px 44px;
+      transition: transform 520ms cubic-bezier(.2,.9,.2,1);
+    }
+    .keyhole{
+      transition: transform 520ms cubic-bezier(.2,.9,.2,1);
+    }
+
+    /* When unlocked, animate shackle open + slight bounce */
+    .unlocked .shackle{
+      transform: rotate(-22deg) translate(-10px, -6px);
+    }
+    .unlocked .keyhole{
+      transform: scale(1.06);
+    }
+
+    /* Optional GIF */
+    .lockGif{
+      width: 140px;
+      height: 140px;
+      object-fit: contain;
+      display:none; 
+      filter: drop-shadow(0 18px 28px rgba(0,0,0,.55));
+    }
+
+    .row{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      justify-content:center;
+    }
+    input[type="password"]{
+      width:min(340px, 100%);
+      padding: 14px 14px;
+      border-radius: 14px;
+      border: 1px solid rgba(255,255,255,.14);
+      background: rgba(255,255,255,.06);
+      color:#fff;
+      outline:none;
+      font-size: 14px;
+    }
+    input[type="password"]::placeholder{color: rgba(255,255,255,.45)}
+    .btn{
+      padding: 14px 16px;
+      border-radius: 14px;
+      border: 1px solid rgba(255,255,255,.14);
+      background: rgba(214,179,106,.18);
+      color: #fff;
+      font-weight: 600;
+      cursor:pointer;
+      transition: transform .08s ease, background .2s ease;
+      user-select:none;
+    }
+    .btn:active{transform: translateY(1px)}
+    .hint{
+      margin-top:12px;
+      font-size: 12px;
+      color: rgba(242,242,246,.62);
+    }
+    .error{
+      margin-top:10px;
+      font-size: 13px;
+      color: #ffb4b4;
+      display:none;
+    }
+
+    /* ========== BOOK AREA ========== */
+    .wrap{
+      min-height:100%;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding: 30px 16px 60px;
+    }
+
+    .stage{
+      width:min(980px, 100%);
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      gap:14px;
+    }
+
+    .topNote{
+      text-align:center;
+      color: rgba(242,242,246,.82);
+      font-size: 14px;
+      line-height:1.5;
+      margin-top: 6px;
+    }
+
+    .bookShell{
+      width:min(920px, 100%);
+      aspect-ratio: 16/10;
+      position:relative;
+      border-radius: 22px;
+      box-shadow: var(--shadow);
+      perspective: 2200px;
+    }
+
+    .book{
+      position:absolute;
+      inset:0;
+      border-radius: 22px;
+      background:
+        linear-gradient(90deg, rgba(0,0,0,.22), transparent 18%, transparent 82%, rgba(0,0,0,.24)),
+        linear-gradient(180deg, rgba(255,255,255,.05), transparent 30%),
+        rgba(20,20,26,.92);
+      border: 1px solid rgba(255,255,255,.12);
+      overflow:hidden;
+    }
+
+    .spineGlow{
+      position:absolute;
+      left:50%;
+      top:0;
+      bottom:0;
+      width: 2px;
+      background: linear-gradient(180deg, transparent, rgba(214,179,106,.5), transparent);
+      opacity:.55;
+    }
+
+    /* Pages stack */
+    .pages{
+      position:absolute;
+      inset: 16px;
+      border-radius: 18px;
+      display:grid;
+      place-items:center;
+    }
+
+    .page{
+      position:absolute;
+      width: 100%;
+      height: 100%;
+      border-radius: 18px;
+      background: var(--paper);
+      color: var(--ink);
+      box-shadow: 0 16px 44px rgba(0,0,0,.45);
+      transform-style: preserve-3d;
+      transform-origin: left center;
+      transition: transform 720ms cubic-bezier(.2,.9,.2,1);
+      overflow:hidden;
+      border: 1px solid rgba(0,0,0,.08);
+    }
+
+    /* Back side (for nicer flip) */
+    .page::after{
+      content:"";
+      position:absolute;
+      inset:0;
+      background: linear-gradient(90deg, rgba(0,0,0,.06), transparent 20%);
+      transform: rotateY(180deg);
+      backface-visibility:hidden;
+    }
+
+    .pageInner{
+      position:absolute;
+      inset:0;
+      display:grid;
+      grid-template-rows: 1fr auto;
+      padding: 18px;
+      gap: 14px;
+      backface-visibility:hidden;
+    }
+
+    .pageContent{
+      display:grid;
+      grid-template-columns: 1.15fr .85fr;
+      gap: 14px;
+      height:100%;
+      align-items:stretch;
+    }
+
+    .textBox{
+      border-radius: 16px;
+      padding: 16px;
+      background: rgba(0,0,0,.03);
+      border: 1px solid rgba(0,0,0,.06);
+      display:flex;
+      flex-direction:column;
+      justify-content:center;
+      min-height: 200px;
+    }
+    .textBox h2{
+      font-size: 18px;
+      margin:0 0 8px;
+      letter-spacing:.2px;
+      font-weight: 700;
+    }
+    .textBox p{
+      margin:0;
+      color: rgba(27,27,31,.86);
+      font-size: 15px;
+      line-height: 1.55;
+      white-space: pre-wrap;
+    }
+
+    .photo{
+      border-radius: 16px;
+      overflow:hidden;
+      border: 1px solid rgba(0,0,0,.08);
+      background: #eae6dd;
+      position:relative;
+      min-height: 260px;
+    }
+    .photo img{
+      width:100%;
+      height:100%;
+      object-fit: cover;
+      display:block;
+    }
+
+    .pageFooter{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial;
+      font-size: 12px;
+      color: rgba(27,27,31,.60);
+      padding: 0 4px;
+    }
+
+    /* Flip states */
+    .page.flipped{
+      transform: rotateY(-180deg);
+    }
+
+    /* Layering: top pages must be clickable */
+    .page{ pointer-events:auto; }
+    .page.notActive{ pointer-events:none; }
+
+    /* Controls */
+    .controls{
+      display:flex;
+      gap:10px;
+      align-items:center;
+      justify-content:center;
+      flex-wrap:wrap;
+      margin-top: 6px;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial;
+    }
+    .ctrlBtn{
+      padding: 10px 14px;
+      border-radius: 14px;
+      border: 1px solid rgba(255,255,255,.14);
+      background: rgba(255,255,255,.06);
+      color: rgba(242,242,246,.92);
+      cursor:pointer;
+    }
+    .ctrlBtn:hover{ background: rgba(255,255,255,.08); }
+    .progress{
+      color: rgba(242,242,246,.70);
+      font-size: 13px;
+    }
+
+    /* Mobile layout */
+    @media (max-width: 720px){
+      .bookShell{ aspect-ratio: 10/14; }
+      .pageContent{ grid-template-columns: 1fr; }
+      .photo{ min-height: 220px; }
+      .textBox h2{ font-size: 17px; }
+      .textBox p{ font-size: 14px; }
+    }
+
+    /* Fade book in after unlock */
+    .hidden{ display:none !important; }
+    .fadeIn{
+      animation: fadeIn 700ms ease forwards;
+      opacity:0;
+    }
+    @keyframes fadeIn{
+      to{opacity:1}
+    }
+  </style>
+</head>
+
+<body>
+  <!-- LOCK OVERLAY -->
+  <div class="overlay" id="overlay">
+    <div class="lockCard" id="lockCard">
+      <div class="lockTitle">Hay historias que no se abren a la ligera.</div>
+      <div class="lockSub">Si llegaste hasta acá, es porque alguna vez fuiste parte de algo real.</div>
+
+      <div class="lockAnimWrap">
+        <!-- animación SVG -->
+        <svg class="lockSvg" id="lockSvg" viewBox="0 0 120 120" aria-hidden="true">
+          <defs>
+            <linearGradient id="gold" x1="0" x2="1">
+              <stop offset="0" stop-color="#d6b36a" stop-opacity="0.85"/>
+              <stop offset="1" stop-color="#f0e1b7" stop-opacity="0.85"/>
+            </linearGradient>
+          </defs>
+
+          <!-- shackle -->
+          <g class="shackle" id="shackle">
+            <path d="M38 54V40a22 22 0 0 1 44 0v14"
+                  fill="none" stroke="url(#gold)" stroke-width="10" stroke-linecap="round"/>
+          </g>
+
+          <!-- body -->
+          <rect x="26" y="52" width="68" height="54" rx="14"
+                fill="rgba(255,255,255,0.06)" stroke="rgba(255,255,255,0.18)" stroke-width="1.2"/>
+          <rect x="30" y="56" width="60" height="46" rx="12"
+                fill="rgba(214,179,106,0.10)" stroke="rgba(214,179,106,0.25)" stroke-width="1"/>
+
+          <!-- keyhole -->
+          <g class="keyhole" id="keyhole">
+            <circle cx="60" cy="78" r="7" fill="rgba(0,0,0,.55)"/>
+            <rect x="57" y="82" width="6" height="14" rx="3" fill="rgba(0,0,0,.55)"/>
+          </g>
+        </svg>
+
+       
+       
+      </div>
+
+      <div class="row">
+        <input id="pass" type="password" placeholder="Una palabra que solo nosotros conocemos..." autocomplete="off" />
+        <button class="btn" id="unlockBtn">Abrir</button>
+      </div>
+
+      <div class="error" id="error">Esa no es… probá de nuevo cuando quieras.</div>
+      <div class="hint">Tip:Es el nombre de nuestra hija o como te decia yo  .</div>
+    </div>
+  </div>
+
+  <!-- BOOK -->
+  <div class="wrap">
+    <div class="stage hidden" id="stage">
+      <div class="topNote" id="topNote">
+        Leé despacio. Pasá las páginas cuando tengas ganas.
+      </div>
+
+      <div class="bookShell fadeIn">
+        <div class="book" id="book">
+          <div class="spineGlow"></div>
+          <div class="pages" id="pages"></div>
+        </div>
+      </div>
+
+      <div class="controls">
+        <button class="ctrlBtn" id="prevBtn">← Atrás</button>
+        <div class="progress" id="progress">1 / 1</div>
+        <button class="ctrlBtn" id="nextBtn">Siguiente →</button>
+      </div>
+
+      <!-- Música opcional: se habilita con el botón -->
+      <div class="controls" style="margin-top:2px;">
+        <button class="ctrlBtn" id="musicBtn">♫ Música (opcional)</button>
+      </div>
+
+      <audio id="audio" preload="none">
+        <!-- MUSICA -->
+        <source src="assets/photos/tu y yo.mp3" type="audio/mpeg">
+      </audio>
+    </div>
+  </div>
+
+  <script>
+    /***********************
+     * 1) CONFIGURACIÓN
+     ***********************/
+    // PASS:
+    
+    const PASSWORD = "vainillita";             
+
+
+    const STORY = [
+      {
+        title: "Nacimiento",
+        text: "Acá ya estaba irremediablemente loco por vos.\nMe moría por estar cerca,por compartir el mismo espacio,el mismo aire.\nBuscaba cualqier mínimo contacto,solo para sentirte un poco más mía… un poco más cerca.",
+        img : "assets/photos/01.jpg"
+      },
+      {
+        title: "Momentos simples",
+        text: "Risas que no se planean.\neste fue uno de los primero momentos solos. como olvidarlo .",
+        img: "assets/photos/02.jpg" 
+      },
+      {
+        title: "Momentos de sustos ",
+        text: "este dia me acuerdo patente como fue ,\n que manera de vivir momentos con vos , momentos que no me olvido",
+        img: "assets/photos/03.jpg"
+      },
+      {
+        title: "la modelo y el artista",
+        text: "este dia fue una de las veces que estuve solo con tu mama,\n me moria de los nervios .\n pero verte pasar tan hermosa que sos .",
+        img: "assets/photos/04.jpg"
+      },
+      {
+        title: "y aca va toda la verdad que necesitaba decirte",
+        text: "Estoy trabajando en mí.\nEn mi futuro, en nuestro futuro , ya pude cuadrar mi vida y tener planeado todo . \n aparte me di cuenta de que no es necesario alejarme por que se que siempre vas a querer lo mejor para mi ",
+        img: "assets/photos/05.jpg"
+      },
+      {
+        title: "lo que quiero con vos ",
+        text: "todo este tiempo que estuve sin vos , estuve pensando en lo que quiero con vos , y me di cuenta de que lo único que quiero es seguir compartiendo momentos con vos , seguir estando cerca tuyo , seguir sintiéndote mía .",
+        img: "assets/photos/06.jpg"
+      },
+      {
+        title: "Cierre",
+        text: "Gracias por haber sido hogar,y perdon por como maneje las coasas , si  das una oportunidad mas a esta relacion, te voy a tratar como siempre me pediste\n\n— M",
+        img: "assets/photos/07.jpg" 
+      }
+    ];
+
+    /***********************
+     * 2) LOCK LOGIC + ANIM
+     ***********************/
+    const overlay = document.getElementById("overlay");
+    const lockCard = document.getElementById("lockCard");
+    const passInput = document.getElementById("pass");
+    const unlockBtn = document.getElementById("unlockBtn");
+    const error = document.getElementById("error");
+    const stage = document.getElementById("stage");
+
+    const shackle = document.getElementById("shackle");
+    const keyhole = document.getElementById("keyhole");
+
+    function unlockSuccess(){
+      // Animación de desbloqueo (SVG)
+      lockCard.classList.add("unlocked");
+
+      // Micro vibración 
+      if (navigator.vibrate) navigator.vibrate([30, 40, 30]);
+
+      // Después de la animación, desaparece overlay y aparece libro
+      setTimeout(() => {
+        overlay.classList.add("hidden");
+        stage.classList.remove("hidden");
+        renderBook();
+        updateProgress();
+        setActivePagePointers();
+      }, 700);
+    }
+
+    function unlockFail(){
+      error.style.display = "block";
+      lockCard.animate(
+        [{transform:"translateX(0)"},{transform:"translateX(-8px)"},{transform:"translateX(8px)"},{transform:"translateX(0)"}],
+        {duration: 320, easing:"ease-out"}
+      );
+    }
+
+    function tryUnlock(){
+      const typed = (passInput.value || "").trim();
+      if (typed.toLowerCase() === PASSWORD.toLowerCase()){
+        error.style.display = "none";
+        unlockSuccess();
+      } else {
+        unlockFail();
+      }
+    }
+
+    unlockBtn.addEventListener("click", tryUnlock);
+    passInput.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") tryUnlock();
+    });
+
+    /***********************
+     * 3) BOOK RENDER + FLIP
+     ***********************/
+    const pagesEl = document.getElementById("pages");
+    const prevBtn = document.getElementById("prevBtn");
+    const nextBtn = document.getElementById("nextBtn");
+    const progressEl = document.getElementById("progress");
+
+    // currentIndex = cuántas páginas ya pasaste 
+    let currentIndex = 0;
+
+    function renderBook(){
+      pagesEl.innerHTML = "";
+
+      // Creamos las páginas apiladas 
+      STORY.forEach((p, i) => {
+        const page = document.createElement("div");
+        page.className = "page";
+        page.style.zIndex = String(STORY.length - i);
+
+        page.innerHTML = `
+          <div class="pageInner">
+            <div class="pageContent">
+              <div class="textBox">
+                <h2>${escapeHtml(p.title)}</h2>
+                <p>${escapeHtml(p.text)}</p>
+              </div>
+              <div class="photo">
+                <img src="${p.img}" alt="">
+              </div>
+            </div>
+            <div class="pageFooter">
+              <span>${escapeHtml("14 · febrero")}</span>
+              <span>${i+1}</span>
+            </div>
+          </div>
+        `;
+
+        // Click en la página = siguiente
+        page.addEventListener("click", () => {
+          // Solo si es la página superior actual
+          if (i === currentIndex) goNext();
+        });
+
+        pagesEl.appendChild(page);
+      });
+
+      // Reset states
+      currentIndex = 0;
+      updateFlipStates();
+      initSwipe();
+    }
+
+    function updateFlipStates(){
+      const all = [...document.querySelectorAll(".page")];
+
+      all.forEach((page, i) => {
+        // si i < currentIndex => ya fue pasada (flip)
+        if (i < currentIndex) page.classList.add("flipped");
+        else page.classList.remove("flipped");
+      });
+
+      setActivePagePointers();
+      updateProgress();
+    }
+
+    function setActivePagePointers(){
+      const all = [...document.querySelectorAll(".page")];
+      all.forEach((page, i) => {
+        // solo la página actual puede recibir click
+        if (i === currentIndex) page.classList.remove("notActive");
+        else page.classList.add("notActive");
+      });
+    }
+
+    function goNext(){
+      if (currentIndex < STORY.length){
+        currentIndex++;
+        updateFlipStates();
+      }
+    }
+
+    function goPrev(){
+      if (currentIndex > 0){
+        currentIndex--;
+        updateFlipStates();
+      }
+    }
+
+    prevBtn.addEventListener("click", goPrev);
+    nextBtn.addEventListener("click", goNext);
+
+    function updateProgress(){
+      const total = STORY.length;
+      const visible = Math.min(currentIndex + 1, total);
+      progressEl.textContent = `${visible} / ${total}`;
+    }
+
+    /***********************
+     * 4) SWIPE (celu)
+     ***********************/
+    function initSwipe(){
+      let startX = 0, startY = 0, isDown = false;
+
+      const target = document.getElementById("book");
+      target.addEventListener("touchstart", (e) => {
+        const t = e.touches[0];
+        startX = t.clientX; startY = t.clientY;
+        isDown = true;
+      }, {passive:true});
+
+      target.addEventListener("touchend", (e) => {
+        if (!isDown) return;
+        isDown = false;
+
+        const t = e.changedTouches[0];
+        const dx = t.clientX - startX;
+        const dy = t.clientY - startY;
+
+        // swipe horizontal fuerte, ignorando vertical
+        if (Math.abs(dx) > 55 && Math.abs(dy) < 60){
+          if (dx < 0) goNext(); else goPrev();
+        }
+      }, {passive:true});
+    }
+
+    /***********************
+     * 5) MUSIC (opcional)
+     ***********************/
+    const audio = document.getElementById("audio");
+    const musicBtn = document.getElementById("musicBtn");
+    let playing = false;
+
+    musicBtn.addEventListener("click", async () => {
+      try{
+        if (!playing){
+          await audio.play();
+          playing = true;
+          musicBtn.textContent = "⏸ Pausar música";
+        } else {
+          audio.pause();
+          playing = false;
+          musicBtn.textContent = "♫ Música (opcional)";
+        }
+      } catch(err){
+        alert("Si no carga la música, revisá que exista assets/audio/song.mp3");
+      }
+    });
+
+    /***********************
+     * 6) helpers
+     ***********************/
+    function escapeHtml(str){
+      return String(str)
+        .replaceAll("&","&amp;")
+        .replaceAll("<","&lt;")
+        .replaceAll(">","&gt;")
+        .replaceAll('"',"&quot;")
+        .replaceAll("'","&#039;");
+    }
+  </script>
+</body>
+</html>
